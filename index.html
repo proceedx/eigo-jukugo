@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0f2027">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="英熟語">
+<title>高校入試対策 英熟語トレーニング</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap');
+
+  :root {
+    --bg: #0f2027;
+    --bg2: #203a43;
+    --bg3: #2c5364;
+    --accent: #38bdf8;
+    --accent2: #818cf8;
+    --accent3: #34d399;
+    --text: #e8f4f8;
+    --text2: #94a3b8;
+    --text3: #cbd5e1;
+    --card: rgba(255,255,255,0.07);
+    --border: rgba(255,255,255,0.12);
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', sans-serif;
+    background: linear-gradient(135deg, var(--bg) 0%, var(--bg2) 50%, var(--bg3) 100%);
+    min-height: 100vh;
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 48px;
+  }
+
+  /* ヘッダー */
+  .header {
+    width: 100%; max-width: 600px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .header-logo { font-size: 17px; font-weight: 700; color: var(--accent); letter-spacing: .05em; }
+  .header-btn {
+    background: none; border: none; color: var(--accent); cursor: pointer;
+    font-size: 14px; font-family: inherit; padding: 4px 8px;
+  }
+  .header-sub { color: var(--text2); font-size: 13px; }
+
+  /* カード */
+  .card {
+    width: 100%; max-width: 600px;
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    margin: 20px 16px 0;
+    border: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+  }
+
+  /* スクリーン制御 */
+  .screen { display: none; flex-direction: column; align-items: center; width: 100%; }
+  .screen.active { display: flex; }
+
+  /* タイトル */
+  .page-title { font-size: 24px; font-weight: 900; color: #fff; text-align: center; margin-bottom: 6px; }
+  .page-sub { font-size: 13px; color: var(--text2); text-align: center; margin-bottom: 24px; }
+
+  /* 統計バッジ */
+  .stats { display: flex; justify-content: center; gap: 24px; margin-bottom: 28px; }
+  .stat-item { text-align: center; }
+  .stat-num { font-size: 24px; font-weight: 900; color: var(--accent); }
+  .stat-label { font-size: 11px; color: var(--text2); }
+
+  /* ボタン */
+  .btn {
+    display: block; width: 100%;
+    padding: 14px 0; border-radius: 12px; border: none;
+    font-size: 16px; font-weight: 700; cursor: pointer;
+    margin-bottom: 12px; transition: opacity .2s, transform .1s;
+    font-family: inherit;
+  }
+  .btn:active { transform: scale(.97); opacity: .85; }
+  .btn-primary { background: linear-gradient(90deg, var(--accent), var(--accent2)); color: #fff; }
+  .btn-secondary { background: rgba(255,255,255,0.1); color: var(--text3); border: 1px solid var(--border); }
+  .btn-success { background: linear-gradient(90deg, var(--accent3), #10b981); color: #fff; }
+  .btn-half {
+    flex: 1; padding: 13px 0; border-radius: 12px; border: none;
+    font-size: 15px; font-weight: 700; cursor: pointer;
+    font-family: inherit; transition: opacity .2s, transform .1s;
+  }
+  .btn-half:active { transform: scale(.97); }
+  .btn-row { display: flex; gap: 12px; margin-top: 12px; }
+
+  /* チェックボックスラベル */
+  .check-label {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; border-radius: 10px; margin-bottom: 8px;
+    background: rgba(255,255,255,0.05); cursor: pointer; font-size: 14px;
+    border: 1px solid transparent; transition: border-color .2s;
+  }
+  .check-label:hover { border-color: var(--border); }
+  .check-label input { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+  .check-label .badge {
+    margin-left: auto; background: var(--accent); color: var(--bg);
+    border-radius: 20px; padding: 2px 10px; font-size: 12px; font-weight: 700;
+  }
+
+  /* セクション見出し */
+  .section-title { font-size: 13px; color: var(--text2); margin-bottom: 10px; margin-top: 4px; }
+
+  /* プログレスバー */
+  .progress-wrap { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-bottom: 20px; overflow: hidden; }
+  .progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 3px; transition: width .3s; }
+
+  /* 問題ボックス */
+  .question-box {
+    background: rgba(56,189,248,0.1); border-radius: 14px;
+    padding: 28px 20px; margin-bottom: 20px;
+    border: 1px solid rgba(56,189,248,0.3); text-align: center;
+  }
+  .question-hint { font-size: 11px; color: var(--accent); margin-bottom: 10px; letter-spacing: .1em; }
+  .question-text { font-size: 22px; font-weight: 900; color: #fff; line-height: 1.4; }
+
+  /* 解答ボックス */
+  .answer-box {
+    background: rgba(129,140,248,0.1); border-radius: 14px;
+    padding: 20px; margin-bottom: 16px;
+    border: 1px solid rgba(129,140,248,0.3);
+    animation: fadeIn .3s ease;
+  }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+  .answer-meaning { font-size: 17px; color: #c7d2fe; font-weight: 700; margin-bottom: 10px; }
+  .answer-use { font-size: 13px; color: var(--text2); white-space: pre-line; line-height: 1.9; }
+  .answer-use .en { color: var(--text3); }
+  .answer-use .ja { color: var(--text2); font-size: 12px; }
+
+  /* カウンター */
+  .counter { font-size: 13px; color: var(--text2); text-align: center; margin-bottom: 16px; }
+
+  /* 覚えたチェック */
+  .memorized-label {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px; border-radius: 10px; margin-bottom: 16px;
+    background: rgba(52,211,153,0.1); cursor: pointer; font-size: 14px;
+    border: 1px solid rgba(52,211,153,0.2); color: var(--accent3);
+  }
+  .memorized-label input { width: 18px; height: 18px; accent-color: var(--accent3); cursor: pointer; }
+
+  /* 結果画面 */
+  .result-emoji { font-size: 52px; text-align: center; margin-bottom: 12px; }
+  .result-score { font-size: 42px; font-weight: 900; color: var(--accent); text-align: center; margin: 16px 0 6px; }
+  .result-total { font-size: 16px; color: var(--text2); }
+  .result-percent { font-size: 14px; color: var(--text2); text-align: center; margin-bottom: 24px; }
+  .result-bar-wrap { height: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; margin-bottom: 28px; overflow: hidden; }
+  .result-bar { height: 100%; background: linear-gradient(90deg, var(--accent3), #10b981); border-radius: 5px; transition: width .8s ease; }
+
+  /* 一覧タブ */
+  .tab-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .tab-btn {
+    padding: 6px 13px; border-radius: 20px; border: none;
+    font-size: 12px; cursor: pointer; font-weight: 700; font-family: inherit;
+    transition: all .2s;
+  }
+  .tab-btn.active { background: var(--accent); color: var(--bg); }
+  .tab-btn.inactive { background: rgba(255,255,255,0.1); color: var(--text2); }
+  .cat-desc { font-size: 11px; color: var(--text2); margin-bottom: 14px; }
+
+  /* 一覧行 */
+  .list-row { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.07); }
+  .list-num { font-size: 11px; color: #475569; width: 26px; padding-top: 2px; flex-shrink: 0; }
+  .list-title { font-size: 14px; color: var(--accent); font-weight: 700; margin-bottom: 3px; }
+  .list-meaning { font-size: 13px; color: var(--text3); }
+  .list-use { font-size: 12px; color: #475569; margin-top: 3px; white-space: pre-line; line-height: 1.6; }
+
+  /* トグルスイッチ */
+  .toggle-wrap { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-radius: 10px; background: rgba(255,255,255,0.05); margin-bottom: 8px; }
+  .toggle-label { font-size: 14px; color: var(--text3); }
+  .toggle { position: relative; display: inline-block; width: 44px; height: 24px; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute; cursor: pointer; inset: 0;
+    background: rgba(255,255,255,0.2); border-radius: 24px; transition: .3s;
+  }
+  .toggle-slider:before {
+    content: ""; position: absolute; height: 18px; width: 18px;
+    left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: .3s;
+  }
+  .toggle input:checked + .toggle-slider { background: var(--accent); }
+  .toggle input:checked + .toggle-slider:before { transform: translateX(20px); }
+
+  /* 選択した語数 */
+  .count-display {
+    text-align: center; padding: 14px;
+    background: rgba(56,189,248,0.1); border-radius: 10px;
+    margin: 16px 0; border: 1px solid rgba(56,189,248,0.2);
+  }
+  .count-display .num { font-size: 28px; font-weight: 900; color: var(--accent); }
+  .count-display .lbl { font-size: 12px; color: var(--text2); }
+
+  /* スクロール */
+  .list-scroll { max-height: 65vh; overflow-y: auto; padding-right: 4px; }
+  .list-scroll::-webkit-scrollbar { width: 4px; }
+  .list-scroll::-webkit-scrollbar-track { background: transparent; }
+  .list-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- ===== TOP ===== -->
+<div id="screen-top" class="screen active">
+  <div class="card" style="margin-top:52px; text-align:center;">
+    <div style="font-size:40px; margin-bottom:12px;">🇬🇧</div>
+    <div class="page-title">英熟語トレーニング</div>
+    <div class="page-sub">高校入試対策 ｜ 全422語収録</div>
+    <div class="stats">
+      <div class="stat-item"><div class="stat-num">9</div><div class="stat-label">カテゴリ</div></div>
+      <div class="stat-item"><div class="stat-num">422</div><div class="stat-label">熟語数</div></div>
+      <div class="stat-item"><div class="stat-num" id="top-memorized">0</div><div class="stat-label">覚えた語</div></div>
+    </div>
+    <button class="btn btn-primary" onclick="goOption()">学習スタート ▶</button>
+    <button class="btn btn-secondary" onclick="goList()">熟語一覧を見る</button>
+  </div>
+</div>
+
+<!-- ===== OPTION ===== -->
+<div id="screen-option" class="screen">
+  <div class="header">
+    <button class="header-btn" onclick="goTop()">← 戻る</button>
+    <div class="header-logo">学習設定</div>
+    <div></div>
+  </div>
+  <div class="card">
+    <div class="section-title">カテゴリを選択（未選択 = 全カテゴリ）</div>
+    <div id="cat-checks"></div>
+
+    <div style="margin-top:16px;">
+      <div class="toggle-wrap">
+        <span class="toggle-label">🔀 シャッフルモード（ランダム順）</span>
+        <label class="toggle"><input type="checkbox" id="shuffle-toggle"><span class="toggle-slider"></span></label>
+      </div>
+      <div class="toggle-wrap">
+        <span class="toggle-label">⭐ 未習得のみ（覚えた語を除く）</span>
+        <label class="toggle"><input type="checkbox" id="unstudied-toggle"><span class="toggle-slider"></span></label>
+      </div>
+    </div>
+
+    <div class="count-display">
+      <div class="num" id="selected-count">422</div>
+      <div class="lbl">語を学習します</div>
+    </div>
+    <button class="btn btn-primary" onclick="startStudy()">スタート ▶</button>
+  </div>
+</div>
+
+<!-- ===== STUDY ===== -->
+<div id="screen-study" class="screen">
+  <div class="header">
+    <button class="header-btn" onclick="goOption()">← 戻る</button>
+    <div class="header-logo" id="study-counter">1 / 422</div>
+    <button class="header-btn" style="color:#64748b;" onclick="goResult()">終了</button>
+  </div>
+  <div style="width:100%;max-width:600px;padding:0 16px;">
+    <div class="progress-wrap"><div class="progress-bar" id="progress-bar" style="width:0%"></div></div>
+    <div class="question-box">
+      <div class="question-hint">次の熟語の意味は？</div>
+      <div class="question-text" id="question-text"></div>
+    </div>
+    <div id="answer-area" style="display:none;">
+      <div class="answer-box">
+        <div class="answer-meaning" id="answer-meaning"></div>
+        <div class="answer-use" id="answer-use"></div>
+      </div>
+      <label class="memorized-label">
+        <input type="checkbox" id="memorized-check" onchange="toggleMemorized()">
+        <span>✓ 覚えた！</span>
+      </label>
+    </div>
+    <button class="btn btn-primary" id="show-answer-btn" onclick="showAnswer()">意味を見る 👀</button>
+    <button class="btn btn-success" id="next-btn" style="display:none;" onclick="nextQuestion()">次へ ▶</button>
+  </div>
+</div>
+
+<!-- ===== RESULT ===== -->
+<div id="screen-result" class="screen">
+  <div class="card" style="margin-top:52px; text-align:center;">
+    <div class="result-emoji">🎉</div>
+    <div class="page-title">学習完了！</div>
+    <div class="result-score"><span id="result-checked">0</span><span class="result-total"> / <span id="result-total">0</span></span></div>
+    <div class="result-percent" id="result-percent">正答率 0%</div>
+    <div class="result-bar-wrap"><div class="result-bar" id="result-bar" style="width:0%"></div></div>
+    <button class="btn btn-primary" onclick="retryStudy()">もう一度</button>
+    <button class="btn btn-secondary" onclick="goOption()">設定に戻る</button>
+    <button class="btn btn-secondary" onclick="goTop()">トップへ</button>
+  </div>
+</div>
+
+<!-- ===== LIST ===== -->
+<div id="screen-list" class="screen">
+  <div class="header">
+    <button class="header-btn" onclick="goTop()">← 戻る</button>
+    <div class="header-logo">熟語一覧</div>
+    <div></div>
+  </div>
+  <div class="card">
+    <div class="tab-row" id="list-tabs"></div>
+    <div class="cat-desc" id="list-cat-desc"></div>
+    <div class="list-scroll" id="list-body"></div>
+  </div>
+</div>
+
+<script>
+// ===== データ =====
+const CAT_NAMES = {
+  1:"A〜C（a couple of〜 cut down）",
+  2:"D〜F（day after day〜 from time to time）",
+  3:"G〜I（generally speaking〜 It takes...）",
+  4:"J〜L（just in case〜 love to）",
+  5:"M〜O（make a promise〜 owe A to B）",
+  6:"P〜R（pass away〜 run away）",
+  7:"S〜U（say hello〜 used to）",
+  8:"W〜Y（wait for〜 will you?）",
+  9:"表現（You're right など）"
+};
+
+const DATA = [{"key":1,"cat":1,"title":"a couple of ～","idiom":"a couple of ～　　少数の ～","use":"There are a couple of lessons to be learned.\n学ぶべきことは2つあります"},{"key":2,"cat":1,"title":"a few (～)","idiom":"a few (～)　　少数の ～","use":"After only a few months, the new president totally turned the company around.\nたった数か月で、新社長は会社を完全に立て直した"},{"key":3,"cat":1,"title":"a good many ～","idiom":"a good many ～　　非常に多くの ～","use":"A good many people were there.\nかなりの人がそこにいた。"},{"key":4,"cat":1,"title":"a good/great deal of ～","idiom":"a good/great deal of ～　　たくさんの","use":""},{"key":5,"cat":1,"title":"a great many ～","idiom":"a great many ～　　非常に多くの ～","use":"There're a great many of them.\nそういうのは非常にたくさんある"},{"key":6,"cat":1,"title":"a handful of ～","idiom":"a handful of ～　　一握りの ～","use":"a handful of sand ひと握りの砂."},{"key":7,"cat":1,"title":"a little","idiom":"a little　　少し","use":"I'm a little tied up right now.\n今はちょっと忙しいのです"},{"key":8,"cat":1,"title":"a little too ～","idiom":"a little too ～　　少し ～ 過ぎる","use":""},{"key":9,"cat":1,"title":"a lot of ～","idiom":"a lot of ～　　たくさんの ～","use":"Japan has a lot of English conversation schools.\n日本には、たくさんの英会話スクールがあります"},{"key":10,"cat":1,"title":"a minute","idiom":"a minute　　少しの間","use":"Just a minute.\nちょっと待ってね"},{"key":11,"cat":1,"title":"a moment","idiom":"a moment　　少しの間","use":"Just a moment!\nおっと待った"},{"key":12,"cat":1,"title":"a number of ～","idiom":"a number of ～　　いくつかの ～","use":"There are a number of reasons for this decision.\nこの決定にはいくつもの理由がある."},{"key":13,"cat":1,"title":"a point of view","idiom":"a point of view　　観点，見方","use":"a local point of view\n地元の観点"},{"key":14,"cat":1,"title":"a series of ～","idiom":"a series of ～　　一連の ～","use":"a series of disasters\n多くの災難"},{"key":15,"cat":1,"title":"a variety of ～","idiom":"a variety of ～　　さまざまな ～","use":""},{"key":16,"cat":1,"title":"a 形容詞 amount of ～","idiom":"a 形容詞 amount of ～　　＜形容詞＞な量の ～","use":""},{"key":17,"cat":1,"title":"a 形容詞 number of ～","idiom":"a 形容詞 number of ～　　＜形容詞＞な数の ～","use":""},{"key":18,"cat":1,"title":"above all","idiom":"above all　　とりわけ","use":"He loves dogs above all.\n特に犬が好きだ"},{"key":19,"cat":1,"title":"according to ～","idiom":"according to ～　　～によれば","use":"According to the Bible…\n聖書によれば…."},{"key":20,"cat":1,"title":"adapt (oneself) to ～","idiom":"adapt (oneself) to ～　　～に適応する","use":""},{"key":21,"cat":1,"title":"add A to B","idiom":"add A to B　　AをBに付け加える","use":""},{"key":22,"cat":1,"title":"after a while","idiom":"after a while　　しばらくして","use":"They began to walk after a while.\nしばらくして彼らは歩きだした"},{"key":23,"cat":1,"title":"after all","idiom":"after all　　結局","use":"Prevention is the best cure, after all.\n結局のところ、予防は最良の治療ですからね"},{"key":24,"cat":1,"title":"agree to ～","idiom":"agree to ～　　～を承諾する","use":"I agree to his plan.\n彼の計画に賛成する"},{"key":25,"cat":1,"title":"agree to ○○","idiom":"agree to ○○　　○○することに同意する","use":""},{"key":26,"cat":1,"title":"agree with ～","idiom":"agree with ～　　～に賛成である","use":"I agree with you.\n同意します"},{"key":27,"cat":1,"title":"aim to ○○","idiom":"aim to ○○　　○○することを目指す","use":""},{"key":28,"cat":1,"title":"all at once","idiom":"all at once　　突然","use":"All at once, a shark appeared.\n突然サメが現われた"},{"key":29,"cat":1,"title":"all but 名詞","idiom":"all but 名詞　　～を除いて全て","use":""},{"key":30,"cat":1,"title":"all but 形容詞","idiom":"all but 形容詞　　ほとんど ～","use":"all but one of the published studies\n一つを除く全ての研究"},{"key":31,"cat":1,"title":"all day long","idiom":"all day long　　一日中","use":""},{"key":32,"cat":1,"title":"all of a sudden","idiom":"all of a sudden　　突然","use":"All of a sudden the lights went out.\n突然ライトが消えた"},{"key":33,"cat":1,"title":"all over ～","idiom":"all over ～　　～の至る所に","use":"all over the town\n町中に"},{"key":34,"cat":1,"title":"all right","idiom":"all right　　Okである","use":""},{"key":35,"cat":1,"title":"all the time","idiom":"all the time　　いつでも","use":"He is busy all the time.\n彼はいつも忙しい"},{"key":36,"cat":1,"title":"all the 比較級","idiom":"all the 比較級 (for ～)　　なお一層 ～","use":""},{"key":37,"cat":1,"title":"along with ～","idiom":"along with ～　　～と共に","use":"Come along with me.\nついて来なさい."},{"key":38,"cat":1,"title":"amount to ～","idiom":"amount to ～　　（総計が）～に達する","use":"the amount due to him\n彼に支払うべき金額."},{"key":39,"cat":1,"title":"an average of ～","idiom":"an average of ～　　平均 ～","use":""},{"key":40,"cat":1,"title":"and yet","idiom":"and yet　　しかし","use":"And yet you have seen.\nそれでも君は見ていた"},{"key":41,"cat":1,"title":"～ and I","idiom":"～ and I　　私と ～","use":""},{"key":42,"cat":1,"title":"～ and so forth","idiom":"～ and so forth　　～など","use":""},{"key":43,"cat":1,"title":"～ and so on","idiom":"～ and so on　　～など","use":""},{"key":44,"cat":1,"title":"anything but ～","idiom":"anything but ～　　決して ～ でない","use":"I will do anything but that.\nそれだけはごめんだ"},{"key":45,"cat":1,"title":"as a matter of fact","idiom":"as a matter of fact　　実際のところ","use":"As a matter of fact, I did it.\n実は私がそれをやりました"},{"key":46,"cat":1,"title":"as a result (of ～)","idiom":"as a result (of ～)　　（～の）結果","use":"a poor catch of fish as a result of a storm\n海が荒れて不漁である"},{"key":47,"cat":1,"title":"as a rule","idiom":"as a rule　　一般に，ふつうは","use":"As a rule, we have a lot of rain in fall.\n概して秋には雨が多い"},{"key":48,"cat":1,"title":"～ as a whole","idiom":"～ as a whole　　～全体","use":""},{"key":49,"cat":1,"title":"as for ～","idiom":"as for ～　　～はというと","use":"As for the guest...\nゲストに関しては…"},{"key":50,"cat":1,"title":"as good as ～","idiom":"as good as ～　　～も同然で","use":"It is just as good.\nそれでもいい"},{"key":51,"cat":1,"title":"as if ～","idiom":"as if ～　　まるで～かのように","use":""},{"key":52,"cat":1,"title":"as it is","idiom":"as it is　　現状では","use":""},{"key":53,"cat":1,"title":"as it were","idiom":"as it were　　言わば","use":"It looks as if he were sick.\n彼は病気のようだ。"},{"key":54,"cat":1,"title":"as long as ～","idiom":"as long as ～　　なんと ～ も（の長さで）","use":"Please stay as long as you wish.\nどうぞごゆっくり"},{"key":55,"cat":1,"title":"as many/much A as B","idiom":"as many/much A as B　　Bと同じ数/量のA","use":""},{"key":56,"cat":1,"title":"as much as ～","idiom":"as much as ～　　なんと ～ も（の量・額で）","use":"As much as I can do\n私のできる限り"},{"key":57,"cat":1,"title":"as soon as possible","idiom":"as soon as possible　　できるだけ早く","use":"Please email me as soon as possible.\n早くメールをください"},{"key":58,"cat":1,"title":"as to ～","idiom":"as to ～　　～に関して","use":""},{"key":59,"cat":1,"title":"as usual","idiom":"as usual　　いつものように","use":"I am well as usual.\n私は普段通りです"},{"key":60,"cat":1,"title":"as well","idiom":"as well　　同様に","use":"It was well executed.\nうまく実行されました"},{"key":61,"cat":1,"title":"as well as ～","idiom":"as well as ～　　～と同様に","use":"I'll go as well.\n私も行くよ"},{"key":62,"cat":1,"title":"as/so long as ～","idiom":"as/so long as ～　　～する限り","use":""},{"key":63,"cat":1,"title":"ask ～ if ～","idiom":"ask ～ if ～　　～に～かどうかを尋ねる","use":""},{"key":64,"cat":1,"title":"at first","idiom":"at first　　最初は","use":"at first hearing\n最初聞いた時に(は)."},{"key":65,"cat":1,"title":"at first sight","idiom":"at first sight　　一目見て","use":"it was love at first sight\nそれは一目惚れだった"},{"key":66,"cat":1,"title":"at home","idiom":"at home　　自国で","use":""},{"key":67,"cat":1,"title":"at last","idiom":"at last　　ついに","use":"Well, here we are at last!\nやっと着いた"},{"key":68,"cat":1,"title":"at least","idiom":"at least　　少なくとも","use":"It is important to visit the dentist at least once a year.\n１年に１度は歯医者に行くことが大切です"},{"key":69,"cat":1,"title":"at length","idiom":"at length　　詳しく，長々と","use":""},{"key":70,"cat":1,"title":"at present","idiom":"at present　　現在は","use":"Jeans are being much worn at present.\nいまジーンズがはやっている."},{"key":71,"cat":1,"title":"at the latest","idiom":"at the latest　　遅くとも","use":"Come here by ten at the latest.\n遅くとも１０時までには来なさい"},{"key":72,"cat":1,"title":"at the moment","idiom":"at the moment　　現時点では","use":""},{"key":73,"cat":1,"title":"at (the) most","idiom":"at (the) most　　最大でも，せいぜい","use":""},{"key":74,"cat":1,"title":"at the sight of ～","idiom":"at the sight of ～　　～を見て","use":"He ran at the sight of the policeman.\n彼は警察を見て走った"},{"key":75,"cat":1,"title":"at the/that time","idiom":"at the/that time　　当時は","use":""},{"key":76,"cat":1,"title":"at times","idiom":"at times　　時々","use":"At times I feel sad.\n時折私は悲しくなる"},{"key":77,"cat":1,"title":"at (the) worst","idiom":"at (the) worst　　最も悪く言えば","use":""},{"key":78,"cat":1,"title":"attend to ～","idiom":"attend to ～　　～に対処する","use":""},{"key":79,"cat":1,"title":"be about to ○○","idiom":"be about to ○○　　○○する寸前である","use":""},{"key":80,"cat":1,"title":"be afraid of ～","idiom":"be afraid of ～　　～を恐れる","use":"There's nothing to be afraid of.\n何も怖いものはない."},{"key":81,"cat":1,"title":"be against ～","idiom":"be against ～　　～に反対である","use":""},{"key":82,"cat":1,"title":"be anxious to ○○","idiom":"be anxious to ○○　　とても○○したがっている","use":""},{"key":83,"cat":1,"title":"be apt to ○○","idiom":"be apt to ○○　　○○する傾向がある","use":""},{"key":84,"cat":1,"title":"be ashamed of ～","idiom":"be ashamed of ～　　～を恥じている","use":"You ought to be ashamed of yourself.\nあなたは恥じるべきだ"},{"key":85,"cat":1,"title":"be based on ～","idiom":"be based on ～　　～を基礎にしている","use":""},{"key":86,"cat":1,"title":"be believed to ○○","idiom":"be believed to ○○　　○○だと信じられている","use":"He is believed to be innocent.\n彼は無実だと信じられている"},{"key":87,"cat":1,"title":"be busy □□ing","idiom":"be busy □□ing　　□□するのに忙しい","use":""},{"key":88,"cat":1,"title":"be careful not to ○○","idiom":"be careful not to ○○　　○○しないように気をつける","use":""},{"key":89,"cat":1,"title":"be certain (that) ～","idiom":"be certain (that) ～　　～を確信している","use":""},{"key":90,"cat":1,"title":"be certain to ○○","idiom":"be certain to ○○　　○○するのは確実だ","use":""},{"key":91,"cat":1,"title":"be concerned with ～","idiom":"be concerned with ～　　～とかかわりがある","use":"to be deeply concerned with something\n深くかかわりを持つ"},{"key":92,"cat":1,"title":"be content with ～","idiom":"be content with ～　　～に満足している","use":"I should be content with what money I actually need.\n金は要るだけ有ればたくさんだ"},{"key":93,"cat":1,"title":"be covered with ～","idiom":"be covered with ～　　～に覆われている","use":""},{"key":94,"cat":1,"title":"be different from ～","idiom":"be different from ～　　～とは異なる","use":"be different from one another\n互いとは異なる"},{"key":95,"cat":1,"title":"be due to ○○","idiom":"be due to ○○　　○○する予定である","use":""},{"key":96,"cat":1,"title":"be eager to ○○","idiom":"be eager to ○○　　○○したいと強く願う","use":"Be eager to take the reins of the government\n天下取りの意欲がある"},{"key":97,"cat":1,"title":"be engaged in ～","idiom":"be engaged in ～　　～に従事している","use":"be engaged in building\n建築に携わっている"},{"key":98,"cat":1,"title":"be famous for ～","idiom":"be famous for ～　　～で有名である","use":""},{"key":99,"cat":1,"title":"be filled with ～","idiom":"be filled with ～　　～で満たされている","use":"be filled with rapture\n有頂天になる"},{"key":100,"cat":1,"title":"be fond of ～","idiom":"be fond of ～　　～が好きである","use":""},{"key":101,"cat":1,"title":"be full of ～","idiom":"be full of ～　　～でいっぱいである","use":"Always be full of curiosity.\n常に好奇心旺盛であれ"},{"key":102,"cat":1,"title":"be going to ○○","idiom":"be going to ○○　　○○することになっている","use":""},{"key":103,"cat":1,"title":"be good at ～","idiom":"be good at ～　　～が上手だ","use":"I want to be good at tennis.\n私はテニスが上手くなりたい"},{"key":104,"cat":1,"title":"be good for ～","idiom":"be good for ～　　～にとって良い","use":""},{"key":105,"cat":1,"title":"be in trouble","idiom":"be in trouble　　困っている","use":""},{"key":106,"cat":1,"title":"be independent of ～","idiom":"be independent of ～　　～から独立している","use":"Parents also have to learn to be independent of their children.\n親も子離れが必要だ."},{"key":107,"cat":1,"title":"be interested in ～","idiom":"be interested in ～　　～に興味がある","use":"I came to be interested in English conversation.\n私は英会話に興味が持てるようになった"},{"key":108,"cat":1,"title":"be involved in ～","idiom":"be involved in ～　　～に関わっている","use":"to be involved in a troublesome matter\n(面倒なことに)かかわり合う"},{"key":109,"cat":1,"title":"be known as ～","idiom":"be known as ～　　～として知られている","use":""},{"key":110,"cat":1,"title":"be late □□ing","idiom":"be late □□ing　　□□するのが遅い","use":""},{"key":111,"cat":1,"title":"be likely to ○○","idiom":"be likely to ○○　　○○する可能性が高い","use":"That is likely to be more acceptable.\nその方が無難だ."},{"key":112,"cat":1,"title":"be made of ～","idiom":"be made of ～　　～でできている","use":""},{"key":113,"cat":1,"title":"be opposed to ～","idiom":"be opposed to ～　　～には反対である","use":"The committee will be opposed to the proposal.\n委員会はその提案に反対するだろう"},{"key":114,"cat":1,"title":"be out of breath","idiom":"be out of breath　　息が切れている","use":""},{"key":115,"cat":1,"title":"be over","idiom":"be over　　終わっている","use":""},{"key":116,"cat":1,"title":"be proud of ～","idiom":"be proud of ～　　～のことを自慢に思う","use":"I want to be proud of myself.\n自分が誇らしいです"},{"key":117,"cat":1,"title":"be related to ～","idiom":"be related to ～　　～と関係がある","use":""},{"key":118,"cat":1,"title":"be responsible for ～","idiom":"be responsible for ～　　～に対して責任がある","use":""},{"key":119,"cat":1,"title":"be satisfied with ～","idiom":"be satisfied with ～　　～に満足している","use":"I can't be satisfied with that content.\nその内容では彼は満足できません"},{"key":120,"cat":1,"title":"be sensitive to ～","idiom":"be sensitive to ～　　～に敏感である","use":"You seem to be sensitive to the heat.\n君は暑さを苦にするようだね"},{"key":121,"cat":1,"title":"be sold out","idiom":"be sold out　　売り切れている","use":"The cakes may be sold out soon.\nそのケーキはすぐに売り切れるでしょう"},{"key":122,"cat":1,"title":"be suited to ～","idiom":"be suited to ～　　～に適している","use":""},{"key":123,"cat":1,"title":"be supposed to ○○","idiom":"be supposed to ○○　　○○することになっている","use":"She is supposed to be happy.\n彼女は幸せなはずです"},{"key":124,"cat":1,"title":"be sure of ～","idiom":"be sure of ～　　～を確信している","use":""},{"key":125,"cat":1,"title":"be to ○○","idiom":"be to ○○　　○○しなければならない","use":""},{"key":126,"cat":1,"title":"be typical of ～","idiom":"be typical of ～　　～に典型的である","use":"It is said to be typical of the modern shrine architecture.\n近代神社建築の代表とされる"},{"key":127,"cat":1,"title":"be worth □□ing","idiom":"be worth □□ing　　□□する価値がある","use":""},{"key":128,"cat":1,"title":"be worthy of ～","idiom":"be worthy of ～　　～の価値がある","use":"That would be worthy of an educator in the true sense of the word.\nそれでこそ真の教育者だ."},{"key":129,"cat":1,"title":"because of ～","idiom":"because of ～　　～が理由で","use":"Is it because of me?\n私のせいですか？"},{"key":130,"cat":1,"title":"begin to ○○","idiom":"begin to ○○　　○○し始める","use":"to begin to eat\n食べ始める"},{"key":131,"cat":1,"title":"begin □□ing","idiom":"begin □□ing　　□□し始める","use":""},{"key":132,"cat":1,"title":"believe in ～","idiom":"believe in ～　　～の正しさを信じる","use":"I believe in him.\n彼を信じている"},{"key":133,"cat":1,"title":"belong to ～","idiom":"belong to ～　　～に属している","use":"I belong to general affairs.\n私の所属は総務です"},{"key":134,"cat":1,"title":"between A and B","idiom":"between A and B　　AとBの間に","use":""},{"key":135,"cat":1,"title":"blame A on B","idiom":"blame A on B　　AをBのせいだとする","use":""},{"key":136,"cat":1,"title":"both A and B","idiom":"both A and B　　AとBの両方","use":""},{"key":137,"cat":1,"title":"break down","idiom":"break down　　故障する","use":"to break down old customs\n旧習を打破する"},{"key":138,"cat":1,"title":"break into ～","idiom":"break into ～　　～に押し入る","use":"to break into a godown\n土蔵を破る"},{"key":139,"cat":1,"title":"break out","idiom":"break out　　勃発する","use":""},{"key":140,"cat":1,"title":"bring ～ about","idiom":"bring ～ about　　～を引き起こす","use":""},{"key":141,"cat":1,"title":"bring ～ up","idiom":"bring ～ up　　～を育てる","use":""},{"key":142,"cat":1,"title":"by accident","idiom":"by accident　　偶然に","use":"I met her by accident.\n偶然に彼女と会った"},{"key":143,"cat":1,"title":"by cash/check","idiom":"by cash/check　　現金で/小切手で","use":""},{"key":144,"cat":1,"title":"by chance","idiom":"by chance　　偶然に","use":"I met him by chance.\n彼に偶然出会った"},{"key":145,"cat":1,"title":"by now","idiom":"by now　　今頃はもうすでに","use":"He should notice that by now.\n彼はそろそろそれに気付くべきだ"},{"key":146,"cat":1,"title":"by oneself","idiom":"by oneself　　一人で，自分だけで","use":"to think by oneself\n自分が考える"},{"key":147,"cat":1,"title":"by the time ～","idiom":"by the time ～　　～するまでには","use":""},{"key":148,"cat":1,"title":"by the way","idiom":"by the way　　ところで","use":"By the way, do you have time today?\nところで、きみ、きょうは時間ある？"},{"key":149,"cat":1,"title":"by train/bus/car","idiom":"by train/bus/car　　電車/バス/車で","use":""},{"key":150,"cat":1,"title":"call ～ back","idiom":"call ～ back　　～に折り返し電話をかける","use":"I'll call back later.\nあとでかけ直すよ"},{"key":151,"cat":1,"title":"Can I ○○?","idiom":"Can I ○○?　　○○してもかまいませんか？","use":""},{"key":152,"cat":1,"title":"can't ○○ too ～","idiom":"can't ○○ too ～　　いくら～に○○してもし過ぎにはならない","use":""},{"key":153,"cat":1,"title":"care for ～","idiom":"care for ～　　～の面倒を見る","use":"I don't care for eggs.\n卵は嫌いです。"},{"key":154,"cat":1,"title":"catch up with ～","idiom":"catch up with ～　　～に追いつく","use":"I'll catch up with you soon.\nすぐに追い着きます"},{"key":155,"cat":1,"title":"cling to ～","idiom":"cling to ～　　～にしがみつく","use":""},{"key":156,"cat":1,"title":"coincide with ～","idiom":"coincide with ～　　～と一致する","use":"Your views coincide with mine.\n君と意見が合う"},{"key":157,"cat":1,"title":"come true","idiom":"come true　　実現する","use":""},{"key":158,"cat":1,"title":"come up with ～","idiom":"come up with ～　　～を考え出す","use":""},{"key":159,"cat":1,"title":"consent to ～","idiom":"consent to ～　　～を承諾する","use":"I consent to this agreement.\n私はこの契約に同意する"},{"key":160,"cat":1,"title":"considering ～","idiom":"considering ～　　～を考慮すると","use":""},{"key":161,"cat":1,"title":"consist of ～","idiom":"consist of ～　　～から成る","use":"Bricks consist mostly of clay.\n煉瓦は大部分粘土からなっている。"},{"key":162,"cat":1,"title":"continue to ○○","idiom":"continue to ○○　　○○し続ける","use":"to continue sleeping\n眠り続ける"},{"key":163,"cat":1,"title":"contrary to ～","idiom":"contrary to ～　　～に反して","use":"It's contrary to rules.\nそれは規則違反だ."},{"key":164,"cat":1,"title":"cry out","idiom":"cry out　　叫ぶ","use":""},{"key":165,"cat":1,"title":"cut down (on) ～","idiom":"cut down (on) ～　　～を切り詰める","use":"to cut trees down\n樹木を切る"},{"key":166,"cat":2,"title":"day after day","idiom":"day after day　　毎日","use":"He called me day after day.\n彼は毎日私に電話をかけてきた"},{"key":167,"cat":2,"title":"deal with ～","idiom":"deal with ～　　～に対処する","use":"Deal with it\n我慢しなさい"},{"key":168,"cat":2,"title":"decide to ○○","idiom":"decide to ○○　　○○することに決める","use":""},{"key":169,"cat":2,"title":"depend on ～","idiom":"depend on ～　　～に依存する","use":"I guess it depends on the pieces.\nモノ次第じゃないかな"},{"key":170,"cat":2,"title":"do without ～","idiom":"do without ～　　～なしで済ます","use":"We cannot do without him.\n彼がいなくては困るよ."},{"key":171,"cat":2,"title":"Don't mention it.","idiom":"Don't mention it.　　どういたしまして","use":"Don't mention it!\nどう致しまして"},{"key":172,"cat":2,"title":"Don't worry.","idiom":"Don't worry.　　心配しないで","use":"Please don't worry\n安心して下さい"},{"key":173,"cat":2,"title":"drag on","idiom":"drag on　　ずるずると長引く","use":"That is something that is making the war drag on.\nそのことが戦争を長引かせている"},{"key":174,"cat":2,"title":"due to ～","idiom":"due to ～　　～が原因で","use":"the amount due to him\n彼に支払うべき金額."},{"key":175,"cat":2,"title":"either A or B","idiom":"either A or B　　AかBのどちらか一方","use":""},{"key":176,"cat":2,"title":"enable ～ to ○○","idiom":"enable ～ to ○○　　～が○○するのを可能にする","use":""},{"key":177,"cat":2,"title":"enjoy oneself","idiom":"enjoy oneself　　楽しく時を過ごす","use":"enjoy oneself to the full\n心ゆくまで楽しむ."},{"key":178,"cat":2,"title":"enough to ○○","idiom":"enough to ○○　　○○するのに十分","use":"There isn't enough light to read (by).\n暗くて字が読めない."},{"key":179,"cat":2,"title":"even if ～","idiom":"even if ～　　たとえ～だとしても","use":"I won't cry even if I am sad.\n悲しくても泣かない。"},{"key":180,"cat":2,"title":"every other day","idiom":"every other day　　一日おきに","use":"He is on duty every other day.\n彼は隔日に当番だ"},{"key":181,"cat":2,"title":"every time ～","idiom":"every time ～　　～する時はいつでも","use":""},{"key":182,"cat":2,"title":"far from ～","idiom":"far from ～　　～どころか，決して～ではなく","use":""},{"key":183,"cat":2,"title":"feel like □□ing","idiom":"feel like □□ing　　□□したい気分である","use":""},{"key":184,"cat":2,"title":"find out that ～","idiom":"find out that ～　　～だとわかる","use":""},{"key":185,"cat":2,"title":"for a while","idiom":"for a while　　しばらくの間","use":"May I rest here for a while?\nここでしばらく休んでもいいですか？"},{"key":186,"cat":2,"title":"for free","idiom":"for free　　無料で","use":"This is for free.\nこれ無料です。"},{"key":187,"cat":2,"title":"for instance","idiom":"for instance　　例えば","use":"For instance, a real-world example.\n実例を見てみましょう"},{"key":188,"cat":2,"title":"for nothing","idiom":"for nothing　　無料で","use":"to pay for nothing\n只金を払う"},{"key":189,"cat":2,"title":"for that matter","idiom":"for that matter　　さらに言えば","use":""},{"key":190,"cat":2,"title":"for the sake of ～","idiom":"for the sake of ～　　～のために","use":"For the sake of this tutorial\nこの個別指導のため"},{"key":191,"cat":2,"title":"～ , for ～ .","idiom":"～ , for ～ .　　～である、というのは～だからだ","use":""},{"key":192,"cat":2,"title":"forget to ○○","idiom":"forget to ○○　　○○し忘れる","use":"Don't forget to visit.\n忘れず訪ねてね"},{"key":193,"cat":2,"title":"forget □□ing","idiom":"forget □□ing　　□□したことを忘れる","use":""},{"key":194,"cat":2,"title":"from A to B","idiom":"from A to B　　AからBまで","use":""},{"key":195,"cat":2,"title":"from a distance","idiom":"from a distance　　離れた場所から","use":"a voice heard from a distance\n遠くから聞こえる声"},{"key":196,"cat":2,"title":"from time to time","idiom":"from time to time　　時々","use":""},{"key":197,"cat":3,"title":"generally speaking","idiom":"generally speaking　　一般的に言うと","use":"Generally speaking, Japanese are hard workers.\n概して日本人は働き者だ"},{"key":198,"cat":3,"title":"get ～ done","idiom":"get ～ done　　～をやり終える","use":""},{"key":199,"cat":3,"title":"get along with ～","idiom":"get along with ～　　～とうまくやっていく","use":"I get along with my older sister.\n私は姉と仲がいい。"},{"key":200,"cat":3,"title":"get back","idiom":"get back　　元の場所へ戻る","use":"I'll send you my feedback as soon as I get back to the office.\n事務所に戻り次第、フィードバックをお送りします"},{"key":201,"cat":3,"title":"get home","idiom":"get home　　帰宅する","use":""},{"key":202,"cat":3,"title":"get into ～","idiom":"get into ～　　～の中に入る","use":""},{"key":203,"cat":3,"title":"get lost","idiom":"get lost　　道に迷う","use":"I won't get lost any more.\n私はもう迷いません"},{"key":204,"cat":3,"title":"get off (～)","idiom":"get off (～)　　（～から）降りる","use":"Get your hands off.\n手を離しなさい."},{"key":205,"cat":3,"title":"get on (～)","idiom":"get on (～)　　（～に）乗り込む","use":"get on one's feet\n立ち上がる."},{"key":206,"cat":3,"title":"get out of ～","idiom":"get out of ～　　～の外に出る","use":""},{"key":207,"cat":3,"title":"get over ～","idiom":"get over ～　　～を乗り越える","use":""},{"key":208,"cat":3,"title":"get to sleep","idiom":"get to sleep　　眠る","use":"I couldn't get to sleep.\nなかなか寝つけなかった"},{"key":209,"cat":3,"title":"get to ○○","idiom":"get to ○○　　○○するようになる","use":""},{"key":210,"cat":3,"title":"give ～ a ride","idiom":"give ～ a ride　　～を車に乗せる","use":""},{"key":211,"cat":3,"title":"give ～ up","idiom":"give ～ up　　～をやめる","use":""},{"key":212,"cat":3,"title":"go ○○","idiom":"go ○○　　○○しに行く","use":""},{"key":213,"cat":3,"title":"go bankrupt","idiom":"go bankrupt　　倒産する","use":""},{"key":214,"cat":3,"title":"go by","idiom":"go by　　過ぎ去る","use":"10 years go by since then.\nあれから10年が経ちました"},{"key":215,"cat":3,"title":"go for a swim/drive","idiom":"go for a swim/drive　　泳ぎ/ドライブに行く","use":""},{"key":216,"cat":3,"title":"go on a trip (to ～)","idiom":"go on a trip (to ～)　　旅行（で～）に行く","use":"I'll go on a trip tomorrow.\n私は明日旅に出ます"},{"key":217,"cat":3,"title":"go out","idiom":"go out　　外出する","use":"Let's go out for dinner.\n夕食を外に食べに行きましょう"},{"key":218,"cat":3,"title":"go □□ing","idiom":"go □□ing　　□□しに行く","use":""},{"key":219,"cat":3,"title":"go without (～)","idiom":"go without (～)　　（～）なしに済ます","use":""},{"key":220,"cat":3,"title":"go wrong","idiom":"go wrong　　うまく行かない","use":"Why did I go wrong.\nなぜこうなったのかしら"},{"key":221,"cat":3,"title":"graduate from ～","idiom":"graduate from ～　　～を卒業する","use":""},{"key":222,"cat":3,"title":"grow up","idiom":"grow up　　大人になる","use":"kids grow up fast.\n子供の成長は早い"},{"key":223,"cat":3,"title":"happen to ～","idiom":"happen to ～　　～に起こる","use":"Something bad's going to happen.\n何か起きそうだ。"},{"key":224,"cat":3,"title":"have a dream/nightmare","idiom":"have a dream/nightmare　　夢/悪夢を見る","use":""},{"key":225,"cat":3,"title":"have a good time","idiom":"have a good time　　楽しい時を過ごす","use":"I want to have a good time.\n私は良い時間を過ごしたいです"},{"key":226,"cat":3,"title":"have a hard time □□ing","idiom":"have a hard time □□ing　　□□するのに苦労する","use":""},{"key":227,"cat":3,"title":"have been to ～","idiom":"have been to ～　　～へ行ったことがある","use":""},{"key":228,"cat":3,"title":"have got ～","idiom":"have got ～　　～を持っている","use":"I have got hungry.\nおなかがすいた。"},{"key":229,"cat":3,"title":"have to ○○","idiom":"have to ○○　　○○しなければならない","use":""},{"key":230,"cat":3,"title":"hear from ～","idiom":"hear from ～　　～から便りをもらう","use":"I will wait to hear from you.\n連絡を待っています"},{"key":231,"cat":3,"title":"help A with B","idiom":"help A with B　　AのBを助ける","use":""},{"key":232,"cat":3,"title":"Here is/are ～","idiom":"Here is/are ～　　ここに～がある","use":""},{"key":233,"cat":3,"title":"hit on ～","idiom":"hit on ～　　～を（急に）思いつく","use":"hit on the head\n頭に当たる"},{"key":234,"cat":3,"title":"hold on","idiom":"hold on　　そのままで待つ","use":""},{"key":235,"cat":3,"title":"How about ～?","idiom":"How about ～?　　～についてはどうですか？","use":""},{"key":236,"cat":3,"title":"How do you like ～?","idiom":"How do you like ～?　　～は気に入っていますか？","use":"How do you like Japan?\n日本はどうですか"},{"key":237,"cat":3,"title":"how to ○○","idiom":"how to ○○　　○○する方法","use":""},{"key":238,"cat":3,"title":"hundreds of ～","idiom":"hundreds of ～　　数百の ～","use":"hundreds of years later\n何百年か後"},{"key":239,"cat":3,"title":"hurry up","idiom":"hurry up　　急ぐ","use":"Let's hurry up.\n急ぎましょう"},{"key":240,"cat":3,"title":"I beg your pardon?","idiom":"I beg your pardon?　　もう一度言っていただけますか？","use":""},{"key":241,"cat":3,"title":"I guess ～ .","idiom":"I guess ～ .　　たぶん～だと思う","use":"I guess I should hit the hay\n寝ようかな"},{"key":242,"cat":3,"title":"I hear (that) ～.","idiom":"I hear (that) ～.　　～だと聞いています","use":""},{"key":243,"cat":3,"title":"I suppose ～ .","idiom":"I suppose ～ .　　たぶん～だと思う","use":"I suppose so.\n多分そうでしょう"},{"key":244,"cat":3,"title":"I wonder ～ .","idiom":"I wonder ～ .　　～かなぁ","use":"I wonder what's wrong\nどうしたのかしら"},{"key":245,"cat":3,"title":"I'm afraid ～.","idiom":"I'm afraid ～.　　残念ながら～です","use":"I'm not afraid of anything.\n私は何も怖くない"},{"key":246,"cat":3,"title":"I'm sorry to ○○","idiom":"I'm sorry to ○○　　○○してすみません","use":""},{"key":247,"cat":3,"title":"I'm sure (that) ～ .","idiom":"I'm sure (that) ～ .　　～を確信している","use":"I'm sure of it.\nそれは確かだよ."},{"key":248,"cat":3,"title":"if possible","idiom":"if possible　　もし可能なら","use":"I will do so, if possible.\nできるならそうしよう"},{"key":249,"cat":3,"title":"if ～ should ○○","idiom":"if ～ should ○○　　仮に～が○○するとしたら","use":""},{"key":250,"cat":3,"title":"in a hurry","idiom":"in a hurry　　急いで","use":""},{"key":251,"cat":3,"title":"in a word","idiom":"in a word　　要するに","use":""},{"key":252,"cat":3,"title":"in addition to ～","idiom":"in addition to ～　　～に付け加えて","use":""},{"key":253,"cat":3,"title":"in detail","idiom":"in detail　　詳細に","use":"to examine something in detail\n詳しく調べる"},{"key":254,"cat":3,"title":"in fact","idiom":"in fact　　実際には","use":"In fact, it is irreplaceable.\n事実、欠かせないものとなっています"},{"key":255,"cat":3,"title":"in front of ～","idiom":"in front of ～　　～の前に","use":"a rice field in front of a house\n家の前の田"},{"key":256,"cat":3,"title":"in general","idiom":"in general　　一般的に","use":"People in general\nたいていの人"},{"key":257,"cat":3,"title":"in order to ○○","idiom":"in order to ○○　　○○するために","use":""},{"key":258,"cat":3,"title":"in other words","idiom":"in other words　　言い換えると","use":"In other words, he is a man of faith.\n言いかえると、彼は信念の人です"},{"key":259,"cat":3,"title":"in school","idiom":"in school　　在学中に","use":""},{"key":260,"cat":3,"title":"in short","idiom":"in short　　要するに","use":""},{"key":261,"cat":3,"title":"in spite of ～","idiom":"in spite of ～　　～にもかかわらず","use":"I laughed in spite of myself.\nつい笑ってしまった."},{"key":262,"cat":3,"title":"in the corner","idiom":"in the corner　　角に","use":""},{"key":263,"cat":3,"title":"in the end","idiom":"in the end　　最終的には","use":""},{"key":264,"cat":3,"title":"in the future","idiom":"in the future　　将来において","use":"An issue in the future\n将来の問題"},{"key":265,"cat":3,"title":"in the way (of ～)","idiom":"in the way (of ～)　　（～の）邪魔になって","use":""},{"key":266,"cat":3,"title":"in those days","idiom":"in those days　　当時は","use":"Things were much better in those days.\nあの頃はよかった."},{"key":267,"cat":3,"title":"in time (to ○○)","idiom":"in time (to ○○)　　（○○するのに）間に合って","use":""},{"key":268,"cat":3,"title":"in vain","idiom":"in vain　　無駄に","use":"I have not labored in vain.\n骨折ったかいがあった."},{"key":269,"cat":3,"title":"instead of ～","idiom":"instead of ～　　～の代わりに","use":"I went instead of him.\n彼の代わりに私が行った"},{"key":270,"cat":3,"title":"introduce A to B","idiom":"introduce A to B　　AをBに紹介する","use":""},{"key":271,"cat":3,"title":"invest (A) in B","idiom":"invest (A) in B　　（Aを）Bに投資する","use":""},{"key":272,"cat":3,"title":"It is ～ (that) ～ .","idiom":"It is ～ (that) ～ .　　～なのは～である","use":""},{"key":273,"cat":3,"title":"It is said that ～ .","idiom":"It is said that ～ .　　～だと言われている","use":"It is said that he is sick.\n彼は病気だそうだ"},{"key":274,"cat":3,"title":"It is true (that) ～ , but ～","idiom":"It is true (that) ～ , but ～　　確かに～ではあるが，しかし ～","use":""},{"key":275,"cat":3,"title":"It is worthwhile □□ing.","idiom":"It is worthwhile □□ing.　　□□するのは価値のあることだ","use":""},{"key":276,"cat":3,"title":"It looks as if ～ .","idiom":"It looks as if ～ .　　～のようである","use":"It looks as if it is going to rain.\nひと雨来そうだ"},{"key":277,"cat":3,"title":"It looks like ～ .","idiom":"It looks like ～ .　　～のようである","use":"It looks like rain.\n雨模様だ."},{"key":278,"cat":3,"title":"It seems that ～ .","idiom":"It seems that ～ .　　～のようである","use":""},{"key":279,"cat":3,"title":"It takes (A) B to ○○ .","idiom":"It takes (A) B to ○○ .　　○○することは（Aに）Bを必要とさせる","use":""},{"key":280,"cat":4,"title":"(just) in case","idiom":"(just) in case　　万一の場合に備えて","use":""},{"key":281,"cat":4,"title":"keep up with ～","idiom":"keep up with ～　　～に遅れずついていく","use":"I cannot keep up with you.\nあなたについていけません"},{"key":282,"cat":4,"title":"keep □□ing","idiom":"keep □□ing　　□□し続ける","use":""},{"key":283,"cat":4,"title":"learn to ○○","idiom":"learn to ○○　　○○できるようになる","use":"You need to learn from yourself.\n君は自ら学ぶべきだ"},{"key":284,"cat":4,"title":"let ～ ○○","idiom":"let ～ ○○　　～に○○させてやる","use":""},{"key":285,"cat":4,"title":"Let me ○○ .","idiom":"Let me ○○ .　　今○○します / ○○させてください","use":"Let me have a look.\n見せてくれ。"},{"key":286,"cat":4,"title":"Let's see.","idiom":"Let's see.　　えーっと / 確か ～","use":""},{"key":287,"cat":4,"title":"lie down","idiom":"lie down　　（休むために）横になる","use":"I want to lie down.\n私は横になりたい"},{"key":288,"cat":4,"title":"little by little","idiom":"little by little　　少しずつ","use":""},{"key":289,"cat":4,"title":"live to be ～ (years old)","idiom":"live to be ～ (years old)　　～歳まで生きる","use":""},{"key":290,"cat":4,"title":"long ago","idiom":"long ago　　ずっと昔に","use":"an old story from long ago\n昔の話"},{"key":291,"cat":4,"title":"long to ○○","idiom":"long to ○○　　○○したいと切望する","use":""},{"key":292,"cat":4,"title":"look ～ up","idiom":"look ～ up　　～を調べる","use":""},{"key":293,"cat":4,"title":"look after ～","idiom":"look after ～　　～の面倒を見る","use":"Let's look after it together\nまとめてお世話しよう"},{"key":294,"cat":4,"title":"look for ～","idiom":"look for ～　　～を探す","use":"look for a job\n職を探す"},{"key":295,"cat":4,"title":"look forward to ～","idiom":"look forward to ～　　～を楽しみにして待つ","use":""},{"key":296,"cat":4,"title":"look into ～","idiom":"look into ～　　～を調べる","use":""},{"key":297,"cat":4,"title":"look like ～","idiom":"look like ～　　～に似ている","use":"This fruit looks like a star!\nこのフルーツは星みたいに見えるね！"},{"key":298,"cat":4,"title":"Look out!","idiom":"Look out!　　気をつけろ！","use":""},{"key":299,"cat":4,"title":"lots of ～","idiom":"lots of ～　　たくさんの ～","use":""},{"key":300,"cat":4,"title":"love to ○○","idiom":"love to ○○　　○○するのが大好きだ","use":""},{"key":301,"cat":5,"title":"make a promise","idiom":"make a promise　　約束をする","use":"Don't make a promise which you cannot keep.\n守れない約束をしてはいけない"},{"key":302,"cat":5,"title":"make a speech","idiom":"make a speech　　スピーチをする","use":"to make a speech in a street\n道ばたで演説する"},{"key":303,"cat":5,"title":"make fun of ～","idiom":"make fun of ～　　～を笑いものにする","use":""},{"key":304,"cat":5,"title":"May/Can I speak to ～?","idiom":"May/Can I speak to ～?　　～さんをお願いしたいのですが？","use":""},{"key":305,"cat":5,"title":"millions of ～","idiom":"millions of ～　　数百万の ～","use":"The game is watched by millions of people.\nその試合は、何百万という人が見ています"},{"key":306,"cat":5,"title":"need to ○○","idiom":"need to ○○　　○○する必要がある","use":""},{"key":307,"cat":5,"title":"neither A nor B","idiom":"neither A nor B　　AでもBでもない","use":""},{"key":308,"cat":5,"title":"Never mind.","idiom":"Never mind.　　気にしないで","use":"Never mind the expense.\n費用のことなど気にかけるな"},{"key":309,"cat":5,"title":"no doubt","idiom":"no doubt　　疑いなく","use":""},{"key":310,"cat":5,"title":"No kidding!","idiom":"No kidding!　　冗談でしょう","use":"It will cost eight million yen? No kidding!\n800万円かかるって、おどかすなよ."},{"key":311,"cat":5,"title":"no less than ～","idiom":"no less than ～　　～も","use":""},{"key":312,"cat":5,"title":"no longer","idiom":"no longer　　もはや ～ ない","use":"He's no longer young.\nあの人もいい年になった"},{"key":313,"cat":5,"title":"no more than ～","idiom":"no more than ～　　～しか","use":"These are no more than a single example.\nこれらはほんの一例に過ぎません"},{"key":314,"cat":5,"title":"none of ～","idiom":"none of ～　　～のどれもない","use":""},{"key":315,"cat":5,"title":"not ～ any longer","idiom":"not ～ any longer　　もはや ～ ない","use":""},{"key":316,"cat":5,"title":"not ～ at all","idiom":"not ～ at all　　全く ～ ない","use":""},{"key":317,"cat":5,"title":"not A but B","idiom":"not A but B　　AではなくB","use":""},{"key":318,"cat":5,"title":"not ～ , either.","idiom":"not ～ , either.　　～もまた ～ でない","use":"I'm not available either.\n私も都合がつかない"},{"key":319,"cat":5,"title":"not A or B","idiom":"not A or B　　AでもBでもない","use":""},{"key":320,"cat":5,"title":"not only A but (also) B","idiom":"not only A but (also) B　　AだけでなくBもまた","use":""},{"key":321,"cat":5,"title":"not too ～","idiom":"not too ～　　あまり ～ でない","use":"Be careful not to eat too much!\n食べ過ぎに注意！"},{"key":322,"cat":5,"title":"～ of one's own","idiom":"～ of one's own　　～自身の ～","use":""},{"key":323,"cat":5,"title":"on board","idiom":"on board　　搭乗して","use":""},{"key":324,"cat":5,"title":"on campus","idiom":"on campus　　キャンパスで","use":"They were chatting on the campus.\n彼らは校庭でしゃべっていた"},{"key":325,"cat":5,"title":"on fire","idiom":"on fire　　火事になって","use":""},{"key":326,"cat":5,"title":"on foot","idiom":"on foot　　徒歩で","use":"From there it is fifteen minutes on foot.\n徒歩15分"},{"key":327,"cat":5,"title":"on sale","idiom":"on sale　　販売中で","use":""},{"key":328,"cat":5,"title":"on the (tele)phone","idiom":"on the (tele)phone　　電話で","use":""},{"key":329,"cat":5,"title":"on the other hand","idiom":"on the other hand　　他方で","use":"On the one hand he is kind, but on the other hand he is lazy.\n一方では彼は親切だが、他方では怠け者だ"},{"key":330,"cat":5,"title":"on the way","idiom":"on the way　　途中で","use":"On the way home from work\n仕事帰りに"},{"key":331,"cat":5,"title":"on the whole","idiom":"on the whole　　全体的に","use":"The results are, on the whole, excellent\n成績は押しなべて良い方だ"},{"key":332,"cat":5,"title":"on time","idiom":"on time　　時間通りに","use":""},{"key":333,"cat":5,"title":"once upon a time","idiom":"once upon a time　　昔々","use":"Once upon a time there lived a king.\n昔々一人の王様がいました."},{"key":334,"cat":5,"title":"one ～ , the other","idiom":"one ～ , the other　　（２つのうちの）一方，（残りの）片方","use":""},{"key":335,"cat":5,"title":"one ～ after another","idiom":"one ～ after another　　～が次から次へと","use":""},{"key":336,"cat":5,"title":"one of ～","idiom":"one of ～　　～の一つ","use":""},{"key":337,"cat":5,"title":"one of these days","idiom":"one of these days　　近いうちに","use":"I shall call on you one of these days.\nいずれ近いうちに伺います"},{"key":338,"cat":5,"title":"ought to ○○","idiom":"ought to ○○　　○○すべきである","use":""},{"key":339,"cat":5,"title":"out of ～","idiom":"out of ～　　（理由）から","use":""},{"key":340,"cat":5,"title":"out of order","idiom":"out of order　　故障して","use":"The telephone is out of order.\n電話が通じない"},{"key":341,"cat":5,"title":"out of sight","idiom":"out of sight　　見えなくなって","use":"Out of sight, out of mind.\n去る者日々にうとし."},{"key":342,"cat":5,"title":"owe A to B","idiom":"owe A to B　　AをBのおかげだと思う","use":""},{"key":343,"cat":6,"title":"pass away","idiom":"pass away　　亡くなる","use":"My good friend's mother is going to pass away.\n友人の母親が亡くなる。"},{"key":344,"cat":6,"title":"pay (A) for B","idiom":"pay (A) for B　　Bに対して（Aを）支払う","use":""},{"key":345,"cat":6,"title":"persist in ～","idiom":"persist in ～　　あくまでも ～ を続ける","use":""},{"key":346,"cat":6,"title":"pick ～ up","idiom":"pick ～ up　　～を車に乗せる","use":""},{"key":347,"cat":6,"title":"plan to ○○","idiom":"plan to ○○　　○○することを計画する","use":""},{"key":348,"cat":6,"title":"plenty of ～","idiom":"plenty of ～　　たくさんの ～","use":"That's plenty of space.\n十分なスペースです"},{"key":349,"cat":6,"title":"point ～ out","idiom":"point ～ out　　～を指摘する","use":""},{"key":350,"cat":6,"title":"put ～ off","idiom":"put ～ off　　～を延期する","use":""},{"key":351,"cat":6,"title":"put ～ out","idiom":"put ～ out　　～を消す","use":""},{"key":352,"cat":6,"title":"rather than ～","idiom":"rather than ～　　～ではなく","use":"It's sultry rather than warm.\n暑いというよりむしろむし暑い"},{"key":353,"cat":6,"title":"Really?","idiom":"Really?　　本当に？","use":""},{"key":354,"cat":6,"title":"regard A as B","idiom":"regard A as B　　AをBと見なす","use":""},{"key":355,"cat":6,"title":"rely on ～","idiom":"rely on ～　　～に頼る","use":"Don't rely on others.\n他人に頼るな"},{"key":356,"cat":6,"title":"right away","idiom":"right away　　ただちに","use":"I cry right away.\n私はすぐ泣きます"},{"key":357,"cat":6,"title":"right now","idiom":"right now　　ちょうど今","use":"The watch is all right now.\n時計が直った."},{"key":358,"cat":6,"title":"run away","idiom":"run away　　逃げ去る","use":""},{"key":359,"cat":7,"title":"say hello (to ～)","idiom":"say hello (to ～)　　（～に）挨拶をする","use":""},{"key":360,"cat":7,"title":"say to oneself","idiom":"say to oneself　　心の中でつぶやく","use":"to say something to oneself\n独り言を言う"},{"key":361,"cat":7,"title":"see ～ off","idiom":"see ～ off　　～を見送る","use":""},{"key":362,"cat":7,"title":"seem to have ○○","idiom":"seem to have ○○　　○○したようだ","use":"I seem to have a little bit of a cold.\n私は少し風邪っぽいです"},{"key":363,"cat":7,"title":"seem to ○○","idiom":"seem to ○○　　○○のようだ","use":""},{"key":364,"cat":7,"title":"Shall I ○○?","idiom":"Shall I ○○?　　○○しましょうか？","use":""},{"key":365,"cat":7,"title":"slow down","idiom":"slow down　　速度を落とす","use":"Slow down your car.\n自動車の速度を落としなさい"},{"key":366,"cat":7,"title":"so that ～","idiom":"so that ～　　～する目的で","use":""},{"key":367,"cat":7,"title":"so to speak","idiom":"so to speak　　言わば","use":"He is, so to speak, a bookworm.\n彼は、いわば、本の虫だ。"},{"key":368,"cat":7,"title":"so long as ～","idiom":"so long as ～　　～である限り","use":"You are safe so long as you stay here.\n君はここに居るかぎり安全です"},{"key":369,"cat":7,"title":"stand for ～","idiom":"stand for ～　　（頭文字などが）～を表す","use":"What does this symbol stand for?\nこれは何の記号ですか"},{"key":370,"cat":7,"title":"start to ○○","idiom":"start to ○○　　○○し始める","use":"to start to fall down\n落下し始める"},{"key":371,"cat":7,"title":"stop to ○○","idiom":"stop to ○○　　○○するために立ち止まる","use":""},{"key":372,"cat":7,"title":"stop □□ing","idiom":"stop □□ing　　□□するのをやめる","use":""},{"key":373,"cat":7,"title":"such as ～","idiom":"such as ～　　～のような","use":""},{"key":374,"cat":7,"title":"suffer from ～","idiom":"suffer from ～　　～で苦しむ","use":"The company has suffered from a long stretch of poor sales.\nその会社は、長期間にわたる販売不振に苦しんだ"},{"key":375,"cat":7,"title":"switch ～ on","idiom":"switch ～ on　　～のスイッチを入れる","use":""},{"key":376,"cat":7,"title":"take ～ off","idiom":"take ～ off　　～を脱ぐ","use":""},{"key":377,"cat":7,"title":"take ～ with 人","idiom":"take ～ with 人　　～を持って行く","use":""},{"key":378,"cat":7,"title":"Take a seat.","idiom":"Take a seat.　　お座りください","use":""},{"key":379,"cat":7,"title":"take care of ～","idiom":"take care of ～　　～の世話をする","use":"Take care of the environment\n自然を大切に"},{"key":380,"cat":7,"title":"take off","idiom":"take off　　離陸する","use":"to take off one's shoes\n靴を脱ぐ"},{"key":381,"cat":7,"title":"take part in ～","idiom":"take part in ～　　～に参加する","use":"Take part in activities\n活動に参加する"},{"key":382,"cat":7,"title":"tell A from B","idiom":"tell A from B　　AをBと区別する","use":""},{"key":383,"cat":7,"title":"tell ～ to ○○","idiom":"tell ～ to ○○　　～に○○するように言う","use":""},{"key":384,"cat":7,"title":"tend to ○○","idiom":"tend to ○○　　○○する傾向がある","use":"I tend to attract colds.\n私はかぜをひきやすい。"},{"key":385,"cat":7,"title":"thanks to ～","idiom":"thanks to ～　　～のおかげで","use":""},{"key":386,"cat":7,"title":"that is","idiom":"that is　　つまり","use":""},{"key":387,"cat":7,"title":"that is to say","idiom":"that is to say　　つまり","use":""},{"key":388,"cat":7,"title":"That's correct.","idiom":"That's correct.　　その通り","use":"Yes, that is correct.\nええ、そうです。"},{"key":389,"cat":7,"title":"That's too bad.","idiom":"That's too bad.　　それはまずいですね","use":""},{"key":390,"cat":7,"title":"the day before yesterday","idiom":"the day before yesterday　　一昨日","use":""},{"key":391,"cat":7,"title":"the number of ～","idiom":"the number of ～　　～の数","use":"the number of accidents\n事故の数"},{"key":392,"cat":7,"title":"the other day","idiom":"the other day　　先日","use":"Thanks for the other day\n先日はありがとう"},{"key":393,"cat":7,"title":"the same A as B","idiom":"the same A as B　　Bと同じA","use":""},{"key":394,"cat":7,"title":"There is no use □□ing.","idiom":"There is no use □□ing.　　□□しても仕方がない","use":""},{"key":395,"cat":7,"title":"There is no □□ing.","idiom":"There is no □□ing.　　□□することはできない","use":""},{"key":396,"cat":7,"title":"This is ～（電話）","idiom":"This is ～（電話）　　（電話で）私は ～ です","use":""},{"key":397,"cat":7,"title":"this time","idiom":"this time　　今回は","use":""},{"key":398,"cat":7,"title":"too ～ to ○○","idiom":"too ～ to ○○　　あまりに ～ で ○○ できない","use":""},{"key":399,"cat":7,"title":"try □□ing","idiom":"try □□ing　　試しに □□ する","use":""},{"key":400,"cat":7,"title":"turn ～ off","idiom":"turn ～ off　　～を消す","use":""},{"key":401,"cat":7,"title":"turn ～ on","idiom":"turn ～ on　　～を点ける","use":""},{"key":402,"cat":7,"title":"turn around","idiom":"turn around　　反対方向に向きを変える","use":"He made her turn around.\n彼は彼女を振り向かせた"},{"key":403,"cat":7,"title":"turn out ～","idiom":"turn out ～　　結局 ～ となる","use":"How does this problem turn out?\nこの問題の結果はどうなりますか？"},{"key":404,"cat":7,"title":"turn up","idiom":"turn up　　現れる","use":"She did not turn up.\n彼女は姿を見せなかった"},{"key":405,"cat":7,"title":"up to ～","idiom":"up to ～　　～まで","use":"It's up to you.\n君次第だよ。"},{"key":406,"cat":7,"title":"used to ○○","idiom":"used to ○○　　かつては ○○ だった","use":""},{"key":407,"cat":8,"title":"wait for ～","idiom":"wait for ～　　～を待つ","use":""},{"key":408,"cat":8,"title":"wait for ～ to ○○","idiom":"wait for ～ to ○○　　～が○○するのを待つ","use":""},{"key":409,"cat":8,"title":"wake up","idiom":"wake up　　目ざめる","use":"Wake up, Sakura!\n起きなさい、桜！"},{"key":410,"cat":8,"title":"want ～ to ○○","idiom":"want ～ to ○○　　～に○○してほしい","use":""},{"key":411,"cat":8,"title":"What do you say (to ～)?","idiom":"What do you say (to ～)?　　（～は）どうですか？","use":"What do you say to going swimming tomorrow?\n明日、泳ぎに行こうよ"},{"key":412,"cat":8,"title":"What do you think of ～?","idiom":"What do you think of ～?　　～をどう思いますか？","use":"What do you think of this book?\nこの本はどうか"},{"key":413,"cat":8,"title":"What if ～ ?","idiom":"What if ～ ?　　～したらどうなるのですか？","use":""},{"key":414,"cat":8,"title":"What about ～?","idiom":"What about ～?　　～についてはどうですか？","use":""},{"key":415,"cat":8,"title":"Why don't we ○○?","idiom":"Why don't we ○○?　　○○しようじゃないか","use":""},{"key":416,"cat":8,"title":"Why don't you ○○?","idiom":"Why don't you ○○?　　○○してはいかが？","use":""},{"key":417,"cat":8,"title":"work for ～","idiom":"work for ～　　～に勤めている","use":"work for a resolution\n解決を図る"},{"key":418,"cat":8,"title":"would like to ○○","idiom":"would like to ○○　　○○したい","use":"I would like to go home\n家に帰りたい"},{"key":419,"cat":8,"title":"Would you like to ○○?","idiom":"Would you like to ○○?　　○○するのはいかがですか？","use":"Whom would you like to speak to?\nだれと話したいですか？"},{"key":420,"cat":8,"title":"write ～ down","idiom":"write ～ down　　～を書き留める","use":""},{"key":421,"cat":9,"title":"You're right.","idiom":"You're right.　　その通りです","use":"I guess you're right.\n君は正しいと思う"},{"key":422,"cat":8,"title":"will you?","idiom":"will you?　　～してくれませんか？","use":"Will you do it?\nしますか？"}];
+
+// ===== 状態 =====
+let selectedCats = {};
+let currentData = [];
+let questionIdx = 0;
+let memorized = JSON.parse(localStorage.getItem('memorized') || '{}');
+let listCat = 1;
+
+// ===== 初期化 =====
+window.onload = function() {
+  buildCatChecks();
+  buildListTabs();
+  updateTopMemorized();
+  updateSelectedCount();
+};
+
+function saveMemorized() {
+  localStorage.setItem('memorized', JSON.stringify(memorized));
+  updateTopMemorized();
+}
+
+function updateTopMemorized() {
+  document.getElementById('top-memorized').textContent = Object.values(memorized).filter(Boolean).length;
+}
+
+// ===== カテゴリチェックボックス生成 =====
+function buildCatChecks() {
+  const wrap = document.getElementById('cat-checks');
+  wrap.innerHTML = '';
+  for (let c = 1; c <= 9; c++) {
+    const cnt = DATA.filter(d => d.cat === c).length;
+    const lbl = document.createElement('label');
+    lbl.className = 'check-label';
+    lbl.innerHTML = `<input type="checkbox" onchange="toggleCat(${c})" ${selectedCats[c] ? 'checked' : ''}><span style="flex:1;font-size:13px;">カテゴリ${c}　${CAT_NAMES[c]}</span><span class="badge">${cnt}</span>`;
+    wrap.appendChild(lbl);
+  }
+}
+
+function toggleCat(c) {
+  selectedCats[c] = !selectedCats[c];
+  updateSelectedCount();
+}
+
+function updateSelectedCount() {
+  const cats = Object.keys(selectedCats).filter(k => selectedCats[k]).map(Number);
+  const unstudied = document.getElementById('unstudied-toggle') && document.getElementById('unstudied-toggle').checked;
+  let data = cats.length > 0 ? DATA.filter(d => cats.includes(d.cat)) : [...DATA];
+  if (unstudied) data = data.filter(d => !memorized[d.key]);
+  document.getElementById('selected-count').textContent = data.length;
+}
+
+// ===== 画面遷移 =====
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+function goTop() { updateTopMemorized(); showScreen('top'); }
+function goOption() { buildCatChecks(); updateSelectedCount(); showScreen('option'); }
+function goList() { renderList(); showScreen('list'); }
+function goResult() { renderResult(); showScreen('result'); }
+
+// ===== 学習開始 =====
+function startStudy() {
+  const cats = Object.keys(selectedCats).filter(k => selectedCats[k]).map(Number);
+  let data = cats.length > 0 ? DATA.filter(d => cats.includes(d.cat)) : [...DATA];
+  const unstudied = document.getElementById('unstudied-toggle').checked;
+  if (unstudied) data = data.filter(d => !memorized[d.key]);
+  if (data.length === 0) { alert('学習する熟語がありません。設定を変えてください。'); return; }
+  if (document.getElementById('shuffle-toggle').checked) data = [...data].sort(() => Math.random() - 0.5);
+  currentData = data.map(d => ({ ...d, checked: !!memorized[d.key] }));
+  questionIdx = 0;
+  showScreen('study');
+  renderQuestion();
+}
+
+// ===== 問題表示 =====
+function renderQuestion() {
+  const item = currentData[questionIdx];
+  document.getElementById('study-counter').textContent = `${questionIdx + 1} / ${currentData.length}`;
+  document.getElementById('progress-bar').style.width = `${((questionIdx + 1) / currentData.length) * 100}%`;
+  document.getElementById('question-text').textContent = item.title;
+  document.getElementById('answer-area').style.display = 'none';
+  document.getElementById('show-answer-btn').style.display = 'block';
+  document.getElementById('next-btn').style.display = 'none';
+}
+
+function showAnswer() {
+  const item = currentData[questionIdx];
+  const parts = item.idiom.split('　　');
+  document.getElementById('answer-meaning').textContent = parts[1] || item.idiom;
+  const useEl = document.getElementById('answer-use');
+  if (item.use) {
+    const lines = item.use.split('\n');
+    useEl.innerHTML = lines.map((l, i) => `<span class="${i % 2 === 0 ? 'en' : 'ja'}">${l}</span>`).join('\n');
+    useEl.style.display = '';
+  } else {
+    useEl.style.display = 'none';
+  }
+  document.getElementById('memorized-check').checked = !!currentData[questionIdx].checked;
+  document.getElementById('answer-area').style.display = 'block';
+  document.getElementById('show-answer-btn').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'block';
+  document.getElementById('next-btn').textContent = questionIdx < currentData.length - 1 ? '次へ ▶' : '結果を見る 🎉';
+}
+
+function toggleMemorized() {
+  const checked = document.getElementById('memorized-check').checked;
+  currentData[questionIdx].checked = checked;
+  memorized[currentData[questionIdx].key] = checked;
+  saveMemorized();
+}
+
+function nextQuestion() {
+  if (questionIdx < currentData.length - 1) {
+    questionIdx++;
+    renderQuestion();
+  } else {
+    goResult();
+  }
+}
+
+// ===== 結果 =====
+function renderResult() {
+  const checkedCount = currentData.filter(d => d.checked).length;
+  const total = currentData.length;
+  const pct = total > 0 ? Math.round((checkedCount / total) * 100) : 0;
+  document.getElementById('result-checked').textContent = checkedCount;
+  document.getElementById('result-total').textContent = total;
+  document.getElementById('result-percent').textContent = `正答率 ${pct}%`;
+  setTimeout(() => {
+    document.getElementById('result-bar').style.width = `${pct}%`;
+  }, 100);
+}
+
+function retryStudy() {
+  questionIdx = 0;
+  currentData = currentData.map(d => ({ ...d, checked: !!memorized[d.key] }));
+  showScreen('study');
+  renderQuestion();
+}
+
+// ===== 一覧 =====
+function buildListTabs() {
+  const wrap = document.getElementById('list-tabs');
+  for (let c = 1; c <= 9; c++) {
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn ' + (c === listCat ? 'active' : 'inactive');
+    btn.textContent = c;
+    btn.onclick = () => { listCat = c; renderList(); };
+    wrap.appendChild(btn);
+  }
+}
+
+function renderList() {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.className = 'tab-btn ' + (i + 1 === listCat ? 'active' : 'inactive');
+  });
+  document.getElementById('list-cat-desc').textContent = CAT_NAMES[listCat];
+  const body = document.getElementById('list-body');
+  const items = DATA.filter(d => d.cat === listCat);
+  body.innerHTML = items.map((d, i) => {
+    const meaning = d.idiom.split('　　')[1] || '';
+    const useHtml = d.use ? `<div class="list-use">${d.use.replace(/\n/g, '<br>')}</div>` : '';
+    return `<div class="list-row">
+      <div class="list-num">${i + 1}</div>
+      <div>
+        <div class="list-title">${d.title}</div>
+        <div class="list-meaning">${meaning}</div>
+        ${useHtml}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// オプション変更時に語数更新
+document.addEventListener('DOMContentLoaded', () => {
+  const ut = document.getElementById('unstudied-toggle');
+  if (ut) ut.addEventListener('change', updateSelectedCount);
+});
+</script>
+</body>
+</html>
